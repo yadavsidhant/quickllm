@@ -19,9 +19,9 @@ def finetune_model(model_name, input_file, output_dir, objective, epochs, learni
     training_args = TrainingArguments(
         output_dir=output_dir,
         num_train_epochs=epochs,
-        per_device_train_batch_size=8,
-        per_device_eval_batch_size=8,
-        warmup_steps=500,
+        per_device_train_batch_size=1,  # Set to 1 for very small datasets
+        per_device_eval_batch_size=1,   # Set to 1 for very small datasets
+        warmup_steps=0,
         weight_decay=0.01,
         logging_dir=os.path.join(output_dir, "logs"),
         learning_rate=learning_rate,
@@ -29,6 +29,8 @@ def finetune_model(model_name, input_file, output_dir, objective, epochs, learni
         eval_steps=eval_steps,
         evaluation_strategy="steps",
         save_strategy="steps",
+        logging_steps=1,  # Log every step for small datasets
+        do_eval=len(tokenized_dataset['validation']) > 0,  # Only do eval if validation set is not empty
     )
 
     # Initialize the Trainer
@@ -36,7 +38,7 @@ def finetune_model(model_name, input_file, output_dir, objective, epochs, learni
         model=model,
         args=training_args,
         train_dataset=tokenized_dataset["train"],
-        eval_dataset=tokenized_dataset["validation"],
+        eval_dataset=tokenized_dataset["validation"] if len(tokenized_dataset['validation']) > 0 else None,
     )
 
     # Fine-tune the model
