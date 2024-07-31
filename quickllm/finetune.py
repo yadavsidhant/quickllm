@@ -3,15 +3,17 @@ from transformers import Trainer, TrainingArguments
 from .models import SUPPORTED_MODELS
 from .utils import load_dataset, tokenize_dataset
 
-def finetune_model(model_name, input_file, output_dir, objective, epochs, learning_rate):
+def finetune_model(model_name, input_file, output_dir, objective, epochs, learning_rate,
+                   train_split, validation_split, save_steps, eval_steps):
     # Load the model and tokenizer
     model_class, tokenizer_class = SUPPORTED_MODELS[model_name]
     model = model_class.from_pretrained(model_name)
     tokenizer = tokenizer_class.from_pretrained(model_name)
 
     # Load and preprocess the dataset
-    dataset = load_dataset(input_file)
-    tokenized_dataset = tokenize_dataset(dataset, tokenizer, objective)
+    dataset = load_dataset(input_file, train_split, validation_split)
+    tokenized_dataset = {split: tokenize_dataset(data, tokenizer, objective) 
+                         for split, data in dataset.items()}
 
     # Set up training arguments
     training_args = TrainingArguments(
@@ -23,6 +25,10 @@ def finetune_model(model_name, input_file, output_dir, objective, epochs, learni
         weight_decay=0.01,
         logging_dir=os.path.join(output_dir, "logs"),
         learning_rate=learning_rate,
+        save_steps=save_steps,
+        eval_steps=eval_steps,
+        evaluation_strategy="steps",
+        save_strategy="steps",
     )
 
     # Initialize the Trainer
