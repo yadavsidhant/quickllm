@@ -42,14 +42,14 @@ def tokenize_dataset(dataset, tokenizer, objective):
             tokenizer.pad_token = tokenizer.eos_token
 
         if objective == "chat":
-            return tokenizer(examples["text"], truncation=True, padding="max_length")
+            return tokenizer(examples["text"], truncation=True, padding="max_length", return_special_tokens_mask=True)
         elif objective == "code":
-            return tokenizer(examples["text"], truncation=True, padding="max_length", max_length=512)
+            return tokenizer(examples["text"], truncation=True, padding="max_length", max_length=512, return_special_tokens_mask=True)
         elif objective == "specific_chat":
             # Add any specific preprocessing for the chat based on the text file content
-            return tokenizer(examples["text"], truncation=True, padding="max_length")
+            return tokenizer(examples["text"], truncation=True, padding="max_length", return_special_tokens_mask=True)
         else:
             raise ValueError(f"Unsupported objective: {objective}")
 
-    tokenized_datasets = dataset.map(tokenize_function, batched=True)
+    tokenized_datasets = dataset.map(tokenize_function, batched=True, remove_columns=dataset.column_names)
     return tokenized_datasets
