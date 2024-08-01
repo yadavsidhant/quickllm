@@ -1,3 +1,4 @@
+# utils.py
 from datasets import Dataset
 
 def load_dataset(input_file, train_split=0.8, validation_split=None):
@@ -36,6 +37,10 @@ def load_dataset(input_file, train_split=0.8, validation_split=None):
 
 def tokenize_dataset(dataset, tokenizer, objective):
     def tokenize_function(examples):
+        # Set padding token if it's not set
+        if tokenizer.pad_token is None:
+            tokenizer.pad_token = tokenizer.eos_token
+
         if objective == "chat":
             return tokenizer(examples["text"], truncation=True, padding="max_length")
         elif objective == "code":
