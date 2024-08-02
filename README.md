@@ -2,6 +2,8 @@
 
 A Python package called QuickLLM was created to make dealing with, adjusting, and visualizing large language models (LLMs) easier. It provides both novices and experts with an easy-to-use API that lets you quickly train your models on unique text data, communicate with them, see inside of them, and even interact with them through a graphical user interface.
 
+(https://i.ibb.co/LQk3t31/imgkl.png)
+
 ## Features
 
 - Fine-tune popular language models on custom datasets
