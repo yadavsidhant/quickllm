@@ -1,14 +1,14 @@
-# finetune.py
 import os
+import torch
 from transformers import Trainer, TrainingArguments, DataCollatorForLanguageModeling
 from .models import SUPPORTED_MODELS
 from .utils import load_dataset, tokenize_dataset
 
 def finetune_model(model_name, input_file, output_dir, objective, epochs, learning_rate,
-                   train_split, validation_split, save_steps, eval_steps):
+                   train_split, validation_split, save_steps, eval_steps, device):
     # Load the model and tokenizer
     model_class, tokenizer_class = SUPPORTED_MODELS[model_name]
-    model = model_class.from_pretrained(model_name)
+    model = model_class.from_pretrained(model_name).to(device)
     tokenizer = tokenizer_class.from_pretrained(model_name)
 
     # Set padding token for the model if it's not set
