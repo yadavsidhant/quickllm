@@ -1,13 +1,15 @@
 import sys
 import os
+import torch
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QTextEdit, QLineEdit, QPushButton, QComboBox, QLabel
 from PyQt5.QtCore import Qt
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 class ChatInterface(QWidget):
-    def __init__(self, output_dir):
+    def __init__(self, output_dir, device):
         super().__init__()
         self.output_dir = output_dir
+        self.device = device
         self.model = None
         self.tokenizer = None
         self.initUI()
@@ -60,7 +62,7 @@ class ChatInterface(QWidget):
 
     def load_model(self):
         model_path = os.path.join(self.output_dir, self.model_combo.currentText())
-        self.model = AutoModelForCausalLM.from_pretrained(model_path)
+        self.model = AutoModelForCausalLM.from_pretrained(model_path).to(self.device)
         self.tokenizer = AutoTokenizer.from_pretrained(model_path)
         self.chat_history.append("Model loaded successfully!")
 
@@ -73,7 +75,7 @@ class ChatInterface(QWidget):
         self.chat_history.append(f"You: {user_input}")
         self.input_field.clear()
 
-        input_ids = self.tokenizer.encode(user_input, return_tensors="pt")
+        input_ids = self.tokenizer.encode(user_input, return_tensors="pt").to(self.device)
         output = self.model.generate(input_ids, max_length=100, num_return_sequences=1, no_repeat_ngram_size=2, do_sample=True, top_k=50, top_p=0.95, temperature=0.7)
         response = self.tokenizer.decode(output[0], skip_special_tokens=True)
 
@@ -83,5 +85,6 @@ class ChatInterface(QWidget):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     output_dir = input("Enter the path to your output directory: ")
-    ex = ChatInterface(output_dir)
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    ex = ChatInterface(output_dir, device)
     sys.exit(app.exec_())
