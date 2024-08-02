@@ -1,10 +1,10 @@
-# visualize.py
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 import numpy as np
 import os
 from transformers import AutoTokenizer
+from sklearn.manifold import TSNE
 
 def visualize_model(model, output_dir):
     # Set style for all plots
@@ -78,15 +78,16 @@ def visualize_model(model, output_dir):
     except Exception as e:
         print(f"Could not visualize training metrics: {e}")
 
+    # Visualize token embeddings
+    visualize_token_embeddings(model, output_dir)
+
     print(f"Visualizations saved in {output_dir}")
 
-# Add this function to visualize token embeddings
 def visualize_token_embeddings(model, output_dir):
     tokenizer = AutoTokenizer.from_pretrained(model.config._name_or_path)
     embeddings = model.get_input_embeddings().weight.detach().cpu().numpy()
     
     # Perform t-SNE to reduce dimensionality
-    from sklearn.manifold import TSNE
     tsne = TSNE(n_components=2, random_state=42)
     reduced_embeddings = tsne.fit_transform(embeddings)
     
@@ -109,6 +110,3 @@ def visualize_token_embeddings(model, output_dir):
     plt.tight_layout()
     plt.savefig(os.path.join(output_dir, "token_embeddings.png"), dpi=300, bbox_inches='tight')
     plt.close()
-
-# Call this function in the visualize_model function
-visualize_token_embeddings(model, output_dir)
