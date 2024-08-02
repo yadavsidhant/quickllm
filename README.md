@@ -46,8 +46,21 @@ from quickllm import QuickLLM
 # Initialize QuickLLM with your desired model and dataset
 quick_llm = QuickLLM(model_name="gpt2-medium", input_file="data/train.txt", output_dir="output/")
 
-# Fine-tune the model with custom parameters
-quick_llm.finetune(objective="chat", epochs=5, learning_rate=3e-5, save_steps=100)
+# Fine-tune the model with some custom parameters
+quick_llm.finetune(
+    objective="chat",             # Objective could be 'chat', 'code', 'specific_chat', etc.
+    epochs=5,                     # Number of training epochs
+    learning_rate=3e-5,           # Learning rate
+    train_split=0.7,              # Train-validation split ratio
+    validation_split=0.15,        # Validation split ratio
+    save_steps=250,               # Save model every 250 steps
+    eval_steps=250,               # Evaluate model every 250 steps
+    batch_size=8,                 # Batch size for training
+    weight_decay=0.01,            # Weight decay for regularization
+    warmup_steps=500,             # Number of steps to warm up learning rate
+    max_length=512,               # Maximum sequence length for input data
+    fp16=True                     # Whether to use 16-bit floating point precision for faster training
+)
 
 # Visualize the model's internals and training progress
 quick_llm.visualize()
