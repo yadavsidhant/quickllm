@@ -4,6 +4,7 @@ from .models import SUPPORTED_MODELS
 from .finetune import finetune_model
 from .chat import chat_with_model
 from .visualize import visualize_model
+from .gui import ChatInterface
 
 class QuickLLM:
     def __init__(self, model_name: str, input_file: str, output_dir: str):
@@ -69,6 +70,12 @@ class QuickLLM:
             raise ValueError("Model has not been fine-tuned yet. Call finetune() first.")
         
         visualize_model(self.finetuned_model, self.output_dir)
+
+    def start_gui(self):
+        """
+        Start the graphical user interface for chatting with the model.
+        """
+        ChatInterface(self.output_dir)
 
     @staticmethod
     def list_supported_models() -> List[str]:
