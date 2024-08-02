@@ -55,11 +55,6 @@ quick_llm.finetune(
     validation_split=0.15,        # Validation split ratio
     save_steps=250,               # Save model every 250 steps
     eval_steps=250,               # Evaluate model every 250 steps
-    batch_size=8,                 # Batch size for training
-    weight_decay=0.01,            # Weight decay for regularization
-    warmup_steps=500,             # Number of steps to warm up learning rate
-    max_length=512,               # Maximum sequence length for input data
-    fp16=True                     # Whether to use 16-bit floating point precision for faster training
 )
 
 # Visualize the model's internals and training progress
