@@ -1,17 +1,15 @@
-from transformers import AutoTokenizer
+from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch
 from colorama import Fore, Style, init
 import os
 
 init(autoreset=True)  # Initialize colorama
 
-def chat_with_model(model, message, max_length=100):
+def chat_with_model(model, message, device, max_length=100):
     tokenizer = AutoTokenizer.from_pretrained(model.config._name_or_path)
     
-    # Move input to the same device as the model
-    device = next(model.parameters()).device
     input_ids = tokenizer.encode(message, return_tensors="pt").to(device)
-    attention_mask = torch.ones(input_ids.shape, dtype=torch.long).to(device)
+    attention_mask = torch.ones(input_ids.shape, dtype=torch.long, device=device)
     
     output = model.generate(
         input_ids,
@@ -56,7 +54,7 @@ def select_model(output_dir):
         except ValueError:
             print(Fore.RED + "Invalid input. Please enter a number." + Style.RESET_ALL)
 
-def start_chat_interface(output_dir):
+def start_chat_interface(output_dir, device):
     print(Fore.GREEN + Style.BRIGHT + "Welcome to QuickLLM Chat!" + Style.RESET_ALL)
     
     model_path = select_model(output_dir)
@@ -64,8 +62,8 @@ def start_chat_interface(output_dir):
         return
 
     print(Fore.GREEN + f"Loading model from {model_path}" + Style.RESET_ALL)
-    from transformers import AutoModelForCausalLM
-    model = AutoModelForCausalLM.from_pretrained(model_path)
+    model = AutoModelForCausalLM.from_pretrained(model_path).to(device)
+    tokenizer = AutoTokenizer.from_pretrained(model_path)
     
     print(Fore.YELLOW + "Type 'exit' to end the conversation." + Style.RESET_ALL)
     
@@ -75,10 +73,11 @@ def start_chat_interface(output_dir):
             print(Fore.GREEN + Style.BRIGHT + "Thank you for chatting. Goodbye!" + Style.RESET_ALL)
             break
         
-        response = chat_with_model(model, user_input)
+        response = chat_with_model(model, user_input, device)
         print(Fore.MAGENTA + "Model: " + Style.RESET_ALL + response)
         print()  # Add a blank line for better readability
 
 if __name__ == "__main__":
     output_dir = input("Enter the path to your output directory: ")
-    start_chat_interface(output_dir)
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    start_chat_interface(output_dir, device)
