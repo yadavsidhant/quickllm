@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="quickllm",
-    version="0.1.6",
+    version="0.1.7",
     packages=find_packages(),
     install_requires=[
         "transformers>=4.0.0",
@@ -12,6 +12,7 @@ setup(
         "seaborn>=0.11.0",
         "datasets>=1.0.0",
         "colorama",
+        "PyQt5",
     ],
     author="Sidhant Yadav",
     author_email="supersidhant10@gmail.com",
