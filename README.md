@@ -1,6 +1,6 @@
-# QuickLLM: Fast and Easy Fine-tuning for Popular Language Models
+# QuickLLM: Quick and Easy Fine-tuning for Popular Language Models and Interaction
 
-QuickLLM is a Python library that simplifies the process of fine-tuning and interacting with popular language models. With QuickLLM, you can quickly adapt pre-trained models to your specific tasks and chat with them effortlessly.
+A Python package called QuickLLM was created to make dealing with, adjusting, and visualizing large language models (LLMs) easier. It provides both novices and experts with an easy-to-use API that lets you quickly train your models on unique text data, communicate with them, see inside of them, and even interact with them through a graphical user interface.
 
 ## Features
 
@@ -20,27 +20,44 @@ pip install quickllm
 
 ## Quick Start
 
-Here's a simple example to get you started with QuickLLM:
+Minimal Example: Fine-Tuning and Chatting with a Model
+Here's how you can fine-tune a model on your text data and start chatting with it:
 
-```python
+```py
 from quickllm import QuickLLM
 
-# Initialize QuickLLM
-llm = QuickLLM(model_name="gpt2", input_file="path/to/your/data.csv", output_dir="path/to/output")
+# Initialize QuickLLM with your desired model and dataset
+quick_llm = QuickLLM(model_name="gpt2", input_file="data/train.txt", output_dir="output/")
 
 # Fine-tune the model
-llm.finetune(objective="chat", epochs=3, learning_rate=2e-5)
+quick_llm.finetune(objective="chat")
 
-# Chat with the fine-tuned model
-response = llm.chat("Hello, how are you?")
-print(response)
+# Chat with the model
+response = quick_llm.chat("Hello, how are you?")
+print("Model:", response)
+```
 
-# Visualize the model
-llm.visualize()
+Advanced Example: Utilizing All Features
+This example demonstrates fine-tuning a model, visualizing its internals, and interacting via a GUI:
 
-# Start an interactive chat session
-from quickllm.chat import start_chat_interface
-start_chat_interface(llm.finetuned_model)
+```py
+from quickllm import QuickLLM
+
+# Initialize QuickLLM with your desired model and dataset
+quick_llm = QuickLLM(model_name="gpt2-medium", input_file="data/train.txt", output_dir="output/")
+
+# Fine-tune the model with custom parameters
+quick_llm.finetune(objective="chat", epochs=5, learning_rate=3e-5, save_steps=100)
+
+# Visualize the model's internals and training progress
+quick_llm.visualize()
+
+# Start a command-line chat session
+response = quick_llm.chat("What's the weather like today?")
+print("Model:", response)
+
+# Start the GUI chat interface
+quick_llm.start_gui()
 ```
 
 ## Supported Models
@@ -107,13 +124,32 @@ QuickLLM supports different fine-tuning objectives to optimize the model for spe
 - `code`: Optimize for code generation tasks
 - `specific_chat`: Fine-tune for domain-specific conversations based on your input data
 
-## Visualization
+## Visualization Capabilities
+QuickLLM can generate various visualizations, including:
 
-QuickLLM provides built-in visualization tools to help you understand your fine-tuned model:
+- Model Architecture: Visualize the model's layers and components.
+- Parameter Sizes: Bar plots showing the size of each layer's parameters.
+- Attention Heads: Distribution of attention heads across model layers.
+- Training Metrics: Graphs of training and validation loss, learning rate schedules.
+- Token Embeddings: t-SNE plots of token embeddings, annotated with interesting tokens.
 
-- Model architecture visualization
-- Parameter size distribution
-- Training loss curves (if available)
+Example Visualizations
+
+After fine-tuning, you can visualize your model's architecture, parameters, and training progress with the following command:
+
+```py
+quick_llm.visualize()
+```
+Visualizations are saved in the specified output_dir as PNG files.
+
+## GUI Chat Interface
+
+QuickLLM includes a graphical user interface (GUI) for interacting with your models. To start the GUI:
+
+```py
+quick_llm.start_gui()
+```
+This launches a window where you can load a model, chat with it, and view the chat history.
 
 ## Contributing
 
