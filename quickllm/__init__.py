@@ -1,18 +1,17 @@
 import os
 import torch
-from typing import List, Optional
-from .models import SUPPORTED_MODELS
+from typing import List, Optional, Union
+from transformers import AutoModelForCausalLM, AutoTokenizer
 from .finetune import finetune_model
 from .chat import chat_with_model
 from .visualize import visualize_model
 from .gui import ChatInterface
+from .utils import load_dataset, check_model_quantization_support
 
 class QuickLLM:
     def __init__(self, model_name: str, input_file: str, output_dir: str):
-        if not input_file.endswith('.txt'):
-            raise ValueError("Input file must be a .txt file")
-        if model_name not in SUPPORTED_MODELS:
-            raise ValueError(f"Unsupported model: {model_name}")
+        if not input_file.endswith(('.txt', '.csv')):
+            raise ValueError("Input file must be a .txt or .csv file")
         
         self.model_name = model_name
         self.input_file = input_file
@@ -22,7 +21,16 @@ class QuickLLM:
 
     def finetune(self, objective: str, epochs: int = 3, learning_rate: float = 2e-5, 
                  train_split: float = 0.8, validation_split: Optional[float] = None,
-                 save_steps: int = 500, eval_steps: int = 500):
+                 save_steps: int = 500, eval_steps: int = 500, 
+                 quantization: Optional[str] = None, resource_utilization: float = 1.0,
+                 optimization_target: str = "balanced"):
+        
+        quantization_supported = check_model_quantization_support(self.model_name)
+        
+        if quantization and not quantization_supported:
+            print(f"Warning: The model {self.model_name} does not support quantization. Proceeding without quantization.")
+            quantization = None
+        
         self.finetuned_model = finetune_model(
             model_name=self.model_name,
             input_file=self.input_file,
@@ -34,7 +42,10 @@ class QuickLLM:
             validation_split=validation_split,
             save_steps=save_steps,
             eval_steps=eval_steps,
-            device=self.device
+            device=self.device,
+            quantization=quantization,
+            resource_utilization=resource_utilization,
+            optimization_target=optimization_target
         )
 
     def chat(self, message: str) -> str:
@@ -54,4 +65,13 @@ class QuickLLM:
 
     @staticmethod
     def list_supported_models() -> List[str]:
-        return list(SUPPORTED_MODELS.keys())
+        # This now returns all models available on Hugging Face
+        return ["Any model available on Hugging Face can be used."]
+
+    @staticmethod
+    def load_pretrained_model(model_name: str, device: Union[str, torch.device]) -> AutoModelForCausalLM:
+        return AutoModelForCausalLM.from_pretrained(model_name).to(device)
+
+    @staticmethod
+    def load_pretrained_tokenizer(model_name: str) -> AutoTokenizer:
+        return AutoTokenizer.from_pretrained(model_name)
