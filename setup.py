@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="quickllm",
-    version="1.0.0",
+    version="1.0.1",
     packages=find_packages(),
     install_requires=[
         "transformers>=4.0.0",
@@ -13,6 +13,7 @@ setup(
         "datasets>=1.0.0",
         "colorama",
         "PyQt5",
+        "peft",
     ],
     author="Sidhant Yadav",
     author_email="supersidhant10@gmail.com",
