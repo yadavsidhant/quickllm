@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="quickllm",
-    version="0.1.10",
+    version="1.0.0",
     packages=find_packages(),
     install_requires=[
         "transformers>=4.0.0",
