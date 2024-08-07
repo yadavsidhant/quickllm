@@ -1,9 +1,15 @@
-# utils.py
+import pandas as pd
 from datasets import Dataset
+from transformers import AutoConfig
 
 def load_dataset(input_file, train_split=0.8, validation_split=None):
-    with open(input_file, 'r', encoding='utf-8') as f:
-        texts = f.readlines()
+    if input_file.endswith('.csv'):
+        df = pd.read_csv(input_file)
+        text_columns = df.select_dtypes(include=['object']).columns
+        texts = df[text_columns].apply(lambda x: ' '.join(x.dropna().astype(str)), axis=1).tolist()
+    else:
+        with open(input_file, 'r', encoding='utf-8') as f:
+            texts = f.readlines()
     
     dataset = Dataset.from_dict({"text": texts})
     
@@ -53,3 +59,10 @@ def tokenize_dataset(dataset, tokenizer, objective):
 
     tokenized_datasets = dataset.map(tokenize_function, batched=True, remove_columns=dataset.column_names)
     return tokenized_datasets
+
+def check_model_quantization_support(model_name):
+    try:
+        config = AutoConfig.from_pretrained(model_name)
+        return hasattr(config, 'quantization_config')
+    except Exception:
+        return False
