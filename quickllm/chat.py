@@ -1,7 +1,8 @@
-from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch
+from transformers import AutoModelForCausalLM, AutoTokenizer
 from colorama import Fore, Style, init
 import os
+from .models import load_model_and_tokenizer
 
 init(autoreset=True)  # Initialize colorama
 
@@ -62,8 +63,8 @@ def start_chat_interface(output_dir, device):
         return
 
     print(Fore.GREEN + f"Loading model from {model_path}" + Style.RESET_ALL)
-    model = AutoModelForCausalLM.from_pretrained(model_path).to(device)
-    tokenizer = AutoTokenizer.from_pretrained(model_path)
+    model, tokenizer = load_model_and_tokenizer(model_path)
+    model = model.to(device)
     
     print(Fore.YELLOW + "Type 'exit' to end the conversation." + Style.RESET_ALL)
     
