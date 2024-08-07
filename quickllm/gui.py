@@ -3,7 +3,8 @@ import os
 import torch
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QTextEdit, QLineEdit, QPushButton, QComboBox, QLabel
 from PyQt5.QtCore import Qt
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from .models import load_model_and_tokenizer
+from .chat import chat_with_model
 
 class ChatInterface(QWidget):
     def __init__(self, output_dir, device):
@@ -62,8 +63,8 @@ class ChatInterface(QWidget):
 
     def load_model(self):
         model_path = os.path.join(self.output_dir, self.model_combo.currentText())
-        self.model = AutoModelForCausalLM.from_pretrained(model_path).to(self.device)
-        self.tokenizer = AutoTokenizer.from_pretrained(model_path)
+        self.model, self.tokenizer = load_model_and_tokenizer(model_path)
+        self.model = self.model.to(self.device)
         self.chat_history.append("Model loaded successfully!")
 
     def send_message(self):
@@ -75,9 +76,7 @@ class ChatInterface(QWidget):
         self.chat_history.append(f"You: {user_input}")
         self.input_field.clear()
 
-        input_ids = self.tokenizer.encode(user_input, return_tensors="pt").to(self.device)
-        output = self.model.generate(input_ids, max_length=100, num_return_sequences=1, no_repeat_ngram_size=2, do_sample=True, top_k=50, top_p=0.95, temperature=0.7)
-        response = self.tokenizer.decode(output[0], skip_special_tokens=True)
+        response = chat_with_model(self.model, user_input, self.device)
 
         self.chat_history.append(f"Model: {response}")
         self.chat_history.append("")  # Add a blank line for readability
