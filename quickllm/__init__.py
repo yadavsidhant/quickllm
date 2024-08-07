@@ -7,6 +7,7 @@ from .chat import chat_with_model
 from .visualize import visualize_model
 from .gui import ChatInterface
 from .utils import load_dataset, check_model_quantization_support
+from .models import get_supported_models, load_model_and_tokenizer, RECOMMENDED_MODELS
 
 class QuickLLM:
     def __init__(self, model_name: str, input_file: str, output_dir: str):
@@ -65,13 +66,23 @@ class QuickLLM:
 
     @staticmethod
     def list_supported_models() -> List[str]:
-        # This now returns all models available on Hugging Face
-        return ["Any model available on Hugging Face can be used."]
+        return get_supported_models()
+
+    @staticmethod
+    def list_recommended_models() -> List[str]:
+        return RECOMMENDED_MODELS
 
     @staticmethod
     def load_pretrained_model(model_name: str, device: Union[str, torch.device]) -> AutoModelForCausalLM:
-        return AutoModelForCausalLM.from_pretrained(model_name).to(device)
+        model, _ = load_model_and_tokenizer(model_name)
+        return model.to(device)
 
     @staticmethod
     def load_pretrained_tokenizer(model_name: str) -> AutoTokenizer:
-        return AutoTokenizer.from_pretrained(model_name)
+        _, tokenizer = load_model_and_tokenizer(model_name)
+        return tokenizer
+
+# Make sure to import all necessary functions and classes
+__all__ = ['QuickLLM', 'load_dataset', 'check_model_quantization_support', 
+           'get_supported_models', 'load_model_and_tokenizer', 'RECOMMENDED_MODELS',
+           'finetune_model', 'chat_with_model', 'visualize_model', 'ChatInterface']
